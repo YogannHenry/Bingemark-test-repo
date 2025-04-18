@@ -32,18 +32,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse({ success: true, message: "Background script is active" });
     return true;
   }
-  return true;
 });
 
-// Add listener for opening import/export tab
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "openImportExportTab") {
-    chrome.tabs.create({ url: "import-export.html" }, (tab) => {
-      sendResponse({ success: true, tabId: tab.id });
-    });
-    return true;
-  }
-  
   if (message.type === "importBookmarksFromJson") {
     const file = message.file;
     const reader = new FileReader();
@@ -58,6 +49,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     };
 
     reader.readAsText(file);
-    return true;
+    return true; // Keep the message channel open for async response
   }
 });

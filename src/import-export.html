@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookmarks - Import & Export</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body class="bg-[#141414] text-white p-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Import & Export Bookmarks</h1>
+      <button id="closeTab" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">
+        Close
+      </button>
+    </div>
+    
+    <div class="grid gap-6">
+      <!-- Chrome Import Section -->
+      <div class="bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-xl mb-4">Import from Chrome Bookmarks</h2>
+        <div class="flex gap-4 mb-4">
+          <button id="importChrome-add" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
+            Add to Current Bookmarks
+          </button>
+          <button id="importChrome-replace" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">
+            Replace Current Bookmarks
+          </button>
+        </div>
+        <div id="chromeImportStatus" class="text-sm text-gray-400"></div>
+      </div>
+      
+      <!-- JSON Import Section -->
+      <div class="bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-xl mb-4">Import from JSON File</h2>
+        <div class="flex gap-4 mb-4">
+          <div>
+            <input type="file" id="jsonFileInput" accept=".json" class="hidden" />
+            <button id="selectJsonFile" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
+              Select File
+            </button>
+          </div>
+          <div>
+            <button id="importJson-add" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">
+              Add
+            </button>
+            <button id="importJson-replace" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded ml-2">
+              Replace
+            </button>
+          </div>
+        </div>
+        <div id="jsonImportStatus" class="text-sm text-gray-400"></div>
+      </div>
+      
+      <!-- Export Section -->
+      <div class="bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-xl mb-4">Export Bookmarks</h2>
+        <button id="exportJson" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
+          Export as JSON
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="import-export.js"></script>
+</body>
+</html>
