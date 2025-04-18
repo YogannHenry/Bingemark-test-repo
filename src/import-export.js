@@ -67,8 +67,9 @@ const importChromeBookmarks = (mode) => {
           categoryId: "default",
         }));
 
-        chrome.storage.local.get(['bookmarks'], function(result) {
+        chrome.storage.local.get(['bookmarks', 'categories'], function(result) {
           const existingBookmarks = result.bookmarks || [];
+          const existingCategories = result.categories || [{ id: "default", name: "General" }];
           let updatedBookmarks;
           
           if (mode === 'replace') {
@@ -123,6 +124,7 @@ const importBookmarksFromJson = (mode) => {
     try {
       const jsonData = JSON.parse(e.target.result);
       let jsonBookmarks;
+      let importedCategories = [];
       
       // Handle both formats: array of bookmarks or {bookmarks, categories} object
       if (Array.isArray(jsonData)) {
@@ -130,20 +132,66 @@ const importBookmarksFromJson = (mode) => {
       } else if (jsonData.bookmarks && Array.isArray(jsonData.bookmarks)) {
         jsonBookmarks = jsonData.bookmarks;
         
-        // If categories are present, import them as well
+        // If categories are present, store them for later use
         if (jsonData.categories && Array.isArray(jsonData.categories)) {
-          chrome.storage.local.set({ categories: jsonData.categories }, () => {
-            console.log("Categories imported successfully");
-          });
+          importedCategories = jsonData.categories;
         }
       } else {
         updateStatus('jsonImportStatus', "Invalid bookmark file format", 'error');
         return;
       }
 
-      chrome.storage.local.get(['bookmarks'], function(result) {
+      chrome.storage.local.get(['bookmarks', 'categories'], function(result) {
         const existingBookmarks = result.bookmarks || [];
+        const existingCategories = result.categories || [{ id: "default", name: "General" }];
         let updatedBookmarks;
+        
+        // Process categories from imported bookmarks
+        const neededCategories = new Set();
+        
+        // Collect all categories referenced in the imported bookmarks
+        jsonBookmarks.forEach(bookmark => {
+          if (bookmark.categoryId && bookmark.categoryId !== "default") {
+            neededCategories.add(bookmark.categoryId);
+          }
+        });
+        
+        // Check which categories need to be created
+        const existingCategoryIds = new Set(existingCategories.map(c => c.id));
+        const newCategoryIds = Array.from(neededCategories).filter(id => !existingCategoryIds.has(id));
+        
+        // Create mapping from category IDs to names using imported categories
+        const categoryNameMap = {};
+        importedCategories.forEach(cat => {
+          categoryNameMap[cat.id] = cat.name;
+        });
+        
+        // Create new categories
+        let updatedCategories = [...existingCategories];
+        
+        if (newCategoryIds.length > 0) {
+          console.log("Creating new categories:", newCategoryIds);
+          
+          newCategoryIds.forEach(categoryId => {
+            // Use the name from imported categories if available, otherwise capitalize the ID
+            const categoryName = categoryNameMap[categoryId] || 
+                              categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
+            
+            updatedCategories.push({
+              id: categoryId,
+              name: categoryName
+            });
+          });
+          
+          // Save updated categories
+          chrome.storage.local.set({ categories: updatedCategories }, () => {
+            if (chrome.runtime.lastError) {
+              console.error("Error saving categories:", chrome.runtime.lastError);
+            } else {
+              console.log("Added new categories:", newCategoryIds);
+            }
+          });
+        }
         
         if (mode === 'replace') {
           updatedBookmarks = jsonBookmarks;
@@ -166,6 +214,10 @@ const importBookmarksFromJson = (mode) => {
           if (chrome.runtime.lastError) {
             console.error("Error saving bookmarks:", chrome.runtime.lastError);
             updateStatus('jsonImportStatus', `Failed to save: ${chrome.runtime.lastError.message}`, 'error');
+          } else {
+            if (newCategoryIds.length > 0) {
+              updateStatus('jsonImportStatus', `Imported ${updatedBookmarks.length} bookmarks and ${newCategoryIds.length} new categories`, 'success');
+            }
           }
         });
       });
