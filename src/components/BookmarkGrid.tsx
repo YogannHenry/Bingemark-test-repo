@@ -66,6 +66,11 @@ const BookmarkGrid: React.FC = () => {
   
   const filteredBookmarks = getFilteredBookmarks();
   
+  // Get count of bookmarks for each category
+  const getCategoryBookmarkCount = (categoryId: string) => {
+    return filteredBookmarks.filter(bookmark => bookmark.categoryId === categoryId).length;
+  };
+  
   return (
     <>
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -81,6 +86,9 @@ const BookmarkGrid: React.FC = () => {
                   <h2 className="text-xl font-semibold flex items-center gap-2">
                     <Folder className="w-5 h-5" />
                     {category.name}
+                    <span className="text-sm font-normal text-gray-400 ml-1">
+                      ({getCategoryBookmarkCount(category.id)})
+                    </span>
                   </h2>
                   <div 
                     ref={provided.innerRef} 
