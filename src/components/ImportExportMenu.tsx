@@ -1,22 +1,12 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Download, Upload, ExternalLink } from 'lucide-react';
-import { useBookmarks } from '../context/BookmarkContext';
-import { BookmarkItem, Category } from '../types';
+import React, { useRef, useEffect } from 'react';
+import {ExternalLink } from 'lucide-react';
 
 interface ImportExportMenuProps {
   onClose: () => void;
 }
 
-interface ImportData {
-  bookmarks: BookmarkItem[];
-  categories?: Category[];
-}
-
 const ImportExportMenu: React.FC<ImportExportMenuProps> = ({ onClose }) => {
-  const { bookmarks, categories, saveBookmarks, saveCategories } = useBookmarks();
   const menuRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importMode, setImportMode] = useState<"replace" | "add">("add");
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

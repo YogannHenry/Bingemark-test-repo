@@ -70,15 +70,36 @@ const importChromeBookmarks = (mode) => {
         chrome.storage.local.get(['bookmarks', 'categories'], function(result) {
           const existingBookmarks = result.bookmarks || [];
           const existingCategories = result.categories || [{ id: "default", name: "General" }];
+          
+          // Create a map of existing bookmarks by URL for faster lookup
+          const existingBookmarksMap = {};
+          existingBookmarks.forEach(bookmark => {
+            existingBookmarksMap[bookmark.url] = bookmark;
+          });
+          
           let updatedBookmarks;
           
           if (mode === 'replace') {
-            updatedBookmarks = newBookmarks;
-            updateStatus('chromeImportStatus', `Replaced with ${newBookmarks.length} bookmarks from Chrome`, 'success');
+            // In replace mode, we want to keep existing bookmarks that are in both collections
+            // For bookmarks that exist in both, keep the existing one
+            // For bookmarks that only exist in the new collection, add them
+            updatedBookmarks = [];
+            
+            // First, add all new bookmarks that don't conflict with existing ones
+            newBookmarks.forEach(newBookmark => {
+              if (existingBookmarksMap[newBookmark.url]) {
+                // The bookmark already exists, preserve the original
+                updatedBookmarks.push(existingBookmarksMap[newBookmark.url]);
+              } else {
+                // This is a new bookmark, add it
+                updatedBookmarks.push(newBookmark);
+              }
+            });
+            
+            updateStatus('chromeImportStatus', `Replaced with ${updatedBookmarks.length} bookmarks from Chrome`, 'success');
           } else {
-            // Filter out duplicates
-            const existingUrls = new Set(existingBookmarks.map((b) => b.url));
-            const uniqueNewBookmarks = newBookmarks.filter((b) => !existingUrls.has(b.url));
+            // In add mode, just add bookmarks that don't exist yet
+            const uniqueNewBookmarks = newBookmarks.filter(newBookmark => !existingBookmarksMap[newBookmark.url]);
             
             console.log("Adding", uniqueNewBookmarks.length, "unique new bookmarks");
             
@@ -144,7 +165,12 @@ const importBookmarksFromJson = (mode) => {
       chrome.storage.local.get(['bookmarks', 'categories'], function(result) {
         const existingBookmarks = result.bookmarks || [];
         const existingCategories = result.categories || [{ id: "default", name: "General" }];
-        let updatedBookmarks;
+        
+        // Create a map of existing bookmarks by URL for faster lookup
+        const existingBookmarksMap = {};
+        existingBookmarks.forEach(bookmark => {
+          existingBookmarksMap[bookmark.url] = bookmark;
+        });
         
         // Process categories from imported bookmarks
         const neededCategories = new Set();
@@ -193,13 +219,29 @@ const importBookmarksFromJson = (mode) => {
           });
         }
         
+        let updatedBookmarks;
+        
         if (mode === 'replace') {
-          updatedBookmarks = jsonBookmarks;
-          updateStatus('jsonImportStatus', `Replaced with ${jsonBookmarks.length} imported bookmarks`, 'success');
+          // In replace mode, we want to keep existing bookmarks that are in both collections
+          // For bookmarks that exist in both, keep the existing one
+          // For bookmarks that only exist in the new collection, add them
+          updatedBookmarks = [];
+          
+          // Process each imported bookmark
+          jsonBookmarks.forEach(newBookmark => {
+            if (existingBookmarksMap[newBookmark.url]) {
+              // The bookmark already exists, preserve the original
+              updatedBookmarks.push(existingBookmarksMap[newBookmark.url]);
+            } else {
+              // This is a new bookmark, add it
+              updatedBookmarks.push(newBookmark);
+            }
+          });
+          
+          updateStatus('jsonImportStatus', `Replaced with ${updatedBookmarks.length} imported bookmarks`, 'success');
         } else {
-          // In add mode, merge while avoiding duplicates by URL
-          const existingUrls = new Set(existingBookmarks.map((b) => b.url));
-          const newBookmarks = jsonBookmarks.filter((b) => !existingUrls.has(b.url));
+          // In add mode, just add bookmarks that don't exist yet
+          const newBookmarks = jsonBookmarks.filter(newBookmark => !existingBookmarksMap[newBookmark.url]);
 
           if (newBookmarks.length > 0) {
             updatedBookmarks = [...existingBookmarks, ...newBookmarks];

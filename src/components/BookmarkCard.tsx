@@ -52,6 +52,15 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, index, provided, 
       default: return "h-36";
     }
   };
+
+  const getTypographyClass = () => {
+    switch (displaySettings.cardSize) {
+      case "small": return "text-sm";
+      case "medium": return "text-lg";
+      case "large": return "text-xl";
+      default: return "text-lg";
+    }
+  }
   
   const layoutClass = displaySettings.categoryLayout === "horizontal" ? "flex-shrink-0" : "";
 
@@ -79,7 +88,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, index, provided, 
       />
       <div className="p-4">
         <div className="flex items-start justify-between">
-          <h3 className="text-lg font-semibold hover:text-red-500 truncate">{bookmark.title}</h3>
+          <h3 className={`${getTypographyClass} font-semibold hover:text-red-500 truncate`}>{bookmark.title}</h3>
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <button 
               onClick={() => onEdit(bookmark)} 
