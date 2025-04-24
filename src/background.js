@@ -21,7 +21,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === "getBookmarks") {
     chrome.bookmarks.getTree(function(bookmarkTreeNodes) {
       const bookmarks = extractBookmarks(bookmarkTreeNodes);
-      console.log("Extracted bookmarks:", bookmarks.length);
       sendResponse({ success: true, bookmarks: bookmarks });
     });
     return true; // Keep the message channel open for async response

@@ -5,8 +5,7 @@
   "description": "A modern bookmark manager",
   "permissions": [
     "storage",
-    "bookmarks",
-    "tabs"
+    "bookmarks"
   ],
   "background": {
     "service_worker": "background.js",

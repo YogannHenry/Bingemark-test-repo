@@ -28,25 +28,25 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, index, provided, 
   // Helper functions to get correct size classes based on display settings
   const getCardSizeClass = () => {
     switch (displaySettings.cardSize) {
-      case "small": return "w-32";
+      case "small": return "w-40";
       case "medium": return "w-48";
-      case "large": return "w-80";
+      case "large": return "w-64";
       default: return "w-80";
     }
   };
 
   const getCardSizeHeight = () => {
     switch (displaySettings.cardSize) {
-      case "small": return "h-24";
-      case "medium": return "h-36";
-      case "large": return "h-60";
+      case "small": return "h-26";
+      case "medium": return "h-50";
+      case "large": return "h-64";
       default: return "h-60";
     }
   };
 
   const getCardImageSizeHeight = () => {
     switch (displaySettings.cardSize) {
-      case "small": return "h-18";
+      case "small": return "h-16";
       case "medium": return "h-24";
       case "large": return "h-36";
       default: return "h-36";
@@ -55,9 +55,9 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, index, provided, 
 
   const getTypographyClass = () => {
     switch (displaySettings.cardSize) {
-      case "small": return "text-sm";
-      case "medium": return "text-lg";
-      case "large": return "text-xl";
+      case "small": return "text-xs";
+      case "medium": return "text-sm";
+      case "large": return "text-lg";
       default: return "text-lg";
     }
   }
@@ -88,7 +88,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, index, provided, 
       />
       <div className="p-4">
         <div className="flex items-start justify-between">
-          <h3 className={`${getTypographyClass} font-semibold hover:text-red-500 truncate`}>{bookmark.title}</h3>
+          <h3 className={`${getTypographyClass()} font-semibold hover:text-red-500 truncate`}>{bookmark.title}</h3>
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <button 
               onClick={() => onEdit(bookmark)} 
