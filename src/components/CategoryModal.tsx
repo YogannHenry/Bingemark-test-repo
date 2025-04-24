@@ -81,7 +81,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose }) => {
               Add
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-64 overflow-y-auto">
             {categories.map((category) => (
               <div key={category.id} className="flex items-center justify-between bg-gray-700 rounded p-2">
                 <span>{category.name}</span>
