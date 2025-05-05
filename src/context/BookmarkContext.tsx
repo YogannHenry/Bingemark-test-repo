@@ -19,6 +19,8 @@ interface BookmarkContextType {
   toggleTag: (tag: string) => void;
   getAllTags: () => string[];
   getFilteredBookmarks: () => BookmarkItem[];
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(undefined);
@@ -50,6 +52,7 @@ export const BookmarkProvider: React.FC<BookmarkProviderProps> = ({ children }) 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     // Load data from storage when component mounts
@@ -92,6 +95,10 @@ export const BookmarkProvider: React.FC<BookmarkProviderProps> = ({ children }) 
       loadFromStorage();
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-light', theme === 'light');
+  }, [theme]);
 
   const saveBookmarks = (updatedBookmarks: BookmarkItem[]) => {
     chrome.storage.local.set({ bookmarks: updatedBookmarks }, () => {
@@ -166,6 +173,17 @@ export const BookmarkProvider: React.FC<BookmarkProviderProps> = ({ children }) 
     });
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    chrome.storage.local.set({ theme: newTheme }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("Error saving theme:", chrome.runtime.lastError);
+      } else {
+        setTheme(newTheme);
+      }
+    });
+  };
+
   const value = {
     bookmarks,
     categories,
@@ -184,6 +202,8 @@ export const BookmarkProvider: React.FC<BookmarkProviderProps> = ({ children }) 
     toggleTag,
     getAllTags,
     getFilteredBookmarks,
+    theme,
+    toggleTheme,
   };
 
   return (
